@@ -1,70 +1,51 @@
-<?php
-session_start();
-
-// 배경 생성 함수
-function generateBackground() {
-    $colors = array('red', 'blue', 'green', 'yellow', 'orange');
-    $randIndex = array_rand($colors);
-    return $colors[$randIndex];
-}
-
-// 문제 생성 함수
-function generateQuestion() {
-    $num1 = rand(1, 10);
-    $num2 = rand(1, 10);
-    $operators = array('+', '*', '/');
-    $randIndex = array_rand($operators);
-    $operator = $operators[$randIndex];
-
-    switch ($operator) {
-        case '+':
-            $answer = $num1 + $num2;
-            break;
-        case '*':
-            $answer = $num1 * $num2;
-            break;
-        case '/':
-            $answer = $num1 / $num2;
-            break;
-    }
-
-    // 문제와 정답을 세션에 저장
-    $_SESSION['question'] = $num1 . ' ' . $operator . ' ' . $num2;
-    $_SESSION['answer'] = $answer;
-}
-
-// 이전 문제 결과 확인
-if (isset($_POST['answer'])) {
-    if ($_POST['answer'] == $_SESSION['answer']) {
-        echo "정답입니다!";
-    } else {
-        echo "답이 일치하지 않습니다.";
-    }
-    echo "<br>";
-}
-
-// 문제 생성
-generateQuestion();
-
-// 배경 생성
-$background = generateBackground();
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body {
-            background-color: <?php echo $background; ?>;
+    <title>문제 풀기</title>
+    <script>
+        function generateProblem() {
+            var num1 = Math.floor(Math.random() * 10) + 1; // 1부터 10까지의 랜덤한 숫자 생성
+            var num2 = Math.floor(Math.random() * 10) + 1;
+
+            var operatorIndex = Math.floor(Math.random() * 3); // 0, 1, 2 중에 하나의 랜덤한 숫자 생성
+            var operator;
+            var answer;
+
+            if (operatorIndex === 0) {
+                operator = '+';
+                answer = num1 + num2;
+            } else if (operatorIndex === 1) {
+                operator = '×';
+                answer = num1 * num2;
+            } else {
+                operator = '÷';
+                answer = num1 / num2;
+            }
+
+            document.getElementById('problem').textContent = num1 + ' ' + operator + ' ' + num2 + ' =';
+            document.getElementById('answer').value = ''; // 답 입력 박스 초기화
+            document.getElementById('answer').focus(); // 답 입력 박스에 포커스 설정
+
+            return answer;
         }
-    </style>
+
+        function checkAnswer(correctAnswer) {
+            var userAnswer = parseInt(document.getElementById('answer').value);
+            
+            if (userAnswer === correctAnswer) {
+                alert('정답입니다!');
+                generateProblem();
+            } else {
+                alert('오답입니다. 다시 시도해주세요.');
+                // 이 부분에 IP 밴 처리하는 로직을 추가해야 합니다.
+            }
+        }
+    </script>
 </head>
-<body>
-    <h1>문제를 풀어주세요</h1>
-    <form method="POST" action="">
-        <label for="answer">답:</label>
-        <input type="text" id="answer" name="answer" required>
-        <button type="submit">입력</button>
-    </form>
+<body onload="generateProblem();">
+    <h1>문제 풀기</h1>
+    <div id="problem"></div>
+    <input type="number" id="answer">
+    <button onclick="checkAnswer()">입력</button>
 </body>
 </html>
